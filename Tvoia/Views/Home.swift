@@ -6,79 +6,137 @@
 //
 
 import SwiftUI
+struct Widgetd: Identifiable {
+    let id = UUID()
+    let icon: String
+    let title: String
+    let time: String
+    let color: Color
+    let content: AnyView
+}
 
+struct HeaderFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
 struct HomeView: View {
     
-    struct Widgetd: Identifiable {
-        let id = UUID()
-        let icon: String
-        let title: String
-        let time: String
-        let color: Color
-        let content: AnyView
-    }
+    @State private var headerHidden = false
 
-    let widgets: [Widgetd] = [
+    
+    @State private var widgets: [Widgetd] = [
         Widgetd(
-            icon: "star.fill",
-            title: "Виджет 1",
+            icon: "star.circle.fill",
+            title: "Середній бал",
             time: "12:00",
-            color: .blue,
+            color: .red.opacity(0.9),
             content: AnyView(
-                Text("Привет мир!")
-            )
-        ),
-        Widgetd(
-            icon: "heart.fill",
-            title: "Виджет 2",
-            time: "15:30",
-            color: .red,
-            content: AnyView(
-                HStack {
-                    Image(systemName: "heart")
-                    Text("Люблю SwiftUI")
+                HStack() {
+                    TitleView(TitleText: "12.00", TitlePostText: "Балів", Size: 34)
+                    Spacer()
+                    ChartsView(data: [
+                        .init(name: "Wed", value: 4, color: Color.gray),
+                        .init(name: "Thu", value: 8, color: Color.gray),
+                        .init(name: "Fri", value: 5, color: Color.gray),
+                        .init(name: "Sat", value: 9, color: Color.red)
+                    ])
                 }
             )
         ),
         Widgetd(
-            icon: "bolt.fill",
-            title: "Виджет 3",
-            time: "18:45",
-            color: .yellow,
+            icon: "mail.fill",
+            title: "Повідомлення",
+            time: "15:30",
+            color: .blue,
             content: AnyView(
-                VStack {
-                    Text("Еще один виджет")
-                    Image(systemName: "bolt")
+                HStack() {
+                    TitleView(TitleText: "1", TitlePostText: "Непрочитаних", Size: 34)
+                    Spacer()
+                    ListView(Messages: [
+                        .init(who: "Якименко", text: "фца"),
+                        .init(who: "Лоза", text: "Найкращий")
+                    ])
+                }
+            )
+        ),
+        Widgetd(
+            icon: "trophy.fill",
+            title: "Місце в класі",
+            time: "18:45",
+            color: .green,
+            content: AnyView(
+                HStack() {
+                    TitleView(TitleText: "1 з 32", TitlePostText: "Місце", Size: 34)
+                    Spacer()
+                    ChartsView(data: [
+                        .init(name: "Wed", value: 4, color: Color.gray),
+                        .init(name: "Thu", value: 8, color: Color.gray),
+                        .init(name: "Fri", value: 5, color: Color.green),
+                        .init(name: "Sat", value: 9, color: Color.gray)
+                    ])
+                }
+            )
+        ),
+        Widgetd(
+            icon: "clock.fill",
+            title: "Урок зараз",
+            time: "18:45",
+            color: Color(hex: "#5E5CE6"),
+            content: AnyView(
+                HStack() {
+                    TitleView(TitleText: "Українська мова", TitlePostText: "до 17:00", Size: 28)
+                    Spacer()
+                    
                 }
             )
         )
     ]
-    
-    struct FlatList: View {
-        let items = Array(1...100)
 
-        var body: some View {
-            ZStack {
-//                Color.black
-//                    .edgesIgnoringSafeArea(.all)
+
+    var body: some View {
+        ZStack {
+            ScrollView {
                 
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(widgets) { item in
-                            WidgetView(item: item)
+                ZStack {
+                    GradientView()
+                    .ignoresSafeArea()
+                    
+                    
+                    VStack {
+                        VStack(spacing: 12) {
+                            HeaderView(widgets: $widgets)
+                                .background(
+                                    GeometryReader { geo in
+                                        Color.clear
+                                            .onChange(of: geo.frame(in: .global).minY) { _, newY in
+                                                
+                                                if newY < 0 && !headerHidden {
+                                                    headerHidden = true
+                                                }
+                                                if newY >= 0 && headerHidden {
+                                                    headerHidden = false
+                                                }
+                                            }
+                                    }
+                                )
+                            
+                            LazyVStack(spacing: 12) {
+                                ForEach(widgets) { item in
+                                    WidgetView(item: item)
+                                }
+                            }
+                            .padding(.horizontal)
                         }
+                        .padding(.top, 50)
                     }
-                    .padding()
+                    
                 }
             }
+            StikyHeadView(headerHidden: headerHidden, Title: "Статистика")
         }
     }
-    var body: some View {
-        FlatList()
-    }
 }
 
-
-#Preview {
-    HomeView()
-}

@@ -7,22 +7,22 @@
 
 import SwiftUI
 
-struct Widget: View {
+struct WidgetView: View {
     
-    
-//    let Icon: String
-    let text: String
-    
-    
-    
+    let item: Widgetd
+    @Environment(\.colorScheme) var scheme
+
+        
+
     var body: some View {
         Group {
             if #available(iOS 26, *) {
                 Header
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 32))
+                    .glassEffect(
+                        .clear,
+                        in: .rect(cornerRadius: 36.0)
+                    )
                     .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
-                    
             } else {
                 Header
                     .background(.ultraThinMaterial)
@@ -33,35 +33,41 @@ struct Widget: View {
     }
     
     private var Header: some View {
-        VStack(spacing:-5) {
+        VStack(spacing:-15) {
             HStack() {
-                HStack(spacing: 5) {
-                    Image(systemName: "house.fill")
-                        .font(.system(size: 20))
-                    
-                    Text(text)
+                HStack(alignment: .center, spacing: 3) {
+                    Image(systemName: item.icon)
+                        .font(.system(size: 18))
+                        .foregroundStyle(item.color)
+
+                    Text(item.title)
                         .font(.headline)
+                        .foregroundStyle(item.color)
+
                 }
                 
                 Spacer()
                 
                 HStack(spacing: 3,) {
-                    Text("20:10")
+                    Text(item.time)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.black.opacity(0.5))
+                        .foregroundStyle(scheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
+
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.black.opacity(0.5))
+                        .foregroundStyle(scheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
                 }
             }
+            .padding(3)
             
             
-            
-            Content()
+            item.content
+
         }
         .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .frame(minHeight: 113)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .padding()
     }
 }
