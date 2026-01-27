@@ -4,51 +4,83 @@
 //
 //  Created by Maxim Loza on 26.01.2026.
 //
-
 import SwiftUI
 
 struct MessageModal: View {
-    let headerHidden: Bool
-    let Title: String
+    let message: Message
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.5),
-                        Color.black.opacity(0.2),
-                        Color.clear
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 150)
-                .opacity(headerHidden ? 1 : 0)
-                if #available(iOS 26, *) {
-                Text(Title)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .padding()
-                    .padding(.vertical,-3)
-                    .glassEffect(.regular)
-                    .opacity(headerHidden ? 1 : 0)
-                    .offset(y: headerHidden ? 10 : 0)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(message.isRead ? .green : .red)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(message.topic)
+                                .font(.title2)
+                                .bold()
+                            Text("Від: \(message.sender)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Divider()
+                            Text("Кому: Класу")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Divider()
+                            Text("Предмет: \(message.pred)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(.top, 16)
+
+                    Divider()
+
+                    Text(message.pred)
+                        .font(.body)
+                        .padding(.bottom, 16)
+
+                    Spacer()
                 }
-                else {
-                    Text(Title)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .padding()
-                        .opacity(headerHidden ? 1 : 0)
-                        .offset(y: headerHidden ? 10 : 0)
+                .padding(.horizontal)
+            }
+            .navigationTitle("Повідомлення")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    Button(action: { dismiss() }) {
+//                        Image(systemName: "xmark")
+//                            .foregroundColor(.primary)
+//                    }
+//                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button {
+                            print("Reply tapped")
+                        } label: {
+                            Label("Відповісти", systemImage: "arrowshape.turn.up.left")
+                        }
+
+                        Button {
+                            UIPasteboard.general.string = message.pred
+                        } label: {
+                            Label("Скопіювати текст", systemImage: "doc.on.doc")
+                        }
+
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
                 }
             }
-            .ignoresSafeArea(edges: .top)
-
-            Spacer()
+            .background(scheme == .dark ? Color.black : Color.white)
         }
-        .animation(.easeInOut(duration: 0.3), value: headerHidden)
-        .zIndex(1)
-    
     }
 }
+

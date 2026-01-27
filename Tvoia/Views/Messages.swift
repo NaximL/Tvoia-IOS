@@ -1,3 +1,5 @@
+
+
 import SwiftUI
 
 // MARK: - Model
@@ -10,12 +12,17 @@ struct Message: Identifiable {
     let isRead: Bool
 }
 
-// MARK: - Screen
+// MARK: - Messages Screen
 struct MessagesScreen: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @State private var headerHidden = false
-    
+    @State private var modal = false
+    @State private var selectedFilter = 0
+    @State private var selectedMessage: Message? = nil
+
+    let filters = ["Вхідні", "Вихідні"]
+
     @State private var messages: [Message] = [
         Message(id: 1, sender: "Олефіренко Світлана Іванівна", topic: "Колоквіум", pred: "Фізика", date: "Учора", isRead: true),
         Message(id: 2, sender: "Іванова Вікторія Віталіївна", topic: "Завдання на урок", pred: "Фізика", date: "Пʼятниця, 12:28", isRead: true),
@@ -29,150 +36,117 @@ struct MessagesScreen: View {
         Message(id: 10, sender: "Іванова Вікторія", topic: "Завдання на урок", pred: "Фізика", date: "07.11, 00:00", isRead: true),
     ]
 
-    @State private var selectedFilter = 0
-    
-    
-    let filters = ["Вхідні", "Вихідні"]
-
     struct BottomView : View {
         @State private var text = ""
-        
+        @Binding var modal: Bool
         var body: some View {
             if #available(iOS 26.0, *) {
                 GlassEffectContainer(spacing: 15) {
                     HStack(spacing:10) {
                         Menu {
-                            Button {
-                                
-                            } label: {
-                                Label("Add to Favorites", systemImage: "heart")
-                            }
-
-                            Button {
-                                
-                            } label: {
-                                Label("Show in Maps", systemImage: "mappin")
-                            }
+                            Button { } label: { Label("Add to Favorites", systemImage: "heart") }
+                            Button { } label: { Label("Show in Maps", systemImage: "mappin") }
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease")
                                 .font(.system(size: 23, weight: .semibold))
                                 .frame(width: 23, height: 23)
                                 .padding()
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .glassEffect(.regular.interactive())
                         }
-               
-                            
-                            
-                                
+
                         HStack {
                             Image(systemName: "magnifyingglass")
                                 .font(.system(size: 20, weight: .medium))
                             TextField("Пошук", text: $text)
                                 .font(.title3).bold()
                                 .frame(width: 150)
-                            
                         }
                         .padding()
                         .frame(height: 52)
                         .glassEffect(.regular.interactive())
                         
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 23, weight: .semibold))
-                            .frame(width: 23,height: 23)
-                            .padding()
-                            .glassEffect(.regular.interactive())
+                        Button(
+                            action:{
+                                modal=true
+                            }) {
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 23, weight: .semibold))
+                                .frame(width: 23,height: 23)
+                                .padding()
+                                .glassEffect(.regular.interactive())
+                                
+                        }.foregroundStyle(.primary)
                     }
                     .padding()
                 }
             }
         }
     }
-    
+
     var body: some View {
-        ZStack(alignment: .bottom) {
-            
-            ScrollView {
-                VStack(spacing: 12) {
-                    HStack {
-                        VStack(alignment:.leading) {
-                   
-                            Menu {
-                                Button {
-                                    selectedFilter = 0
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        HStack {
+                            VStack(alignment:.leading) {
+                                Menu {
+                                    Button { selectedFilter = 0 } label: { Label("Вхідні", systemImage: "tray") }
+                                    Button { selectedFilter = 1 } label: { Label(selectedFilter==1 ? "Вхідні":"Вихідні", systemImage: "paperplane") }
                                 } label: {
-                                    Label("Вхідні", systemImage: "tray")
+                                    Text(filters[selectedFilter])
+                                        .font(.title)
+                                        .bold()
+                                        .foregroundStyle(colorScheme == .dark ? .white : .black)
                                 }
-                                Button {
-                                    selectedFilter = 1
-                                } label: {
-                                    Label(selectedFilter==1 ?
-                                          "Вхідні":
-                                          "Вихідні", systemImage: "paperplane")
-                                }
-                            } label: {
-                                Text(filters[selectedFilter])
-                                    .font(.title)
-                                    .bold()
-                                    .foregroundStyle(colorScheme == .dark ? .white : .black)
+                                Text("Оновлено щойно")
+                                    .font(Font.headline)
+                                    .foregroundColor(Color(.secondaryLabel))
                             }
-                            Text("Оновлено щойно")
-                                .font(Font.headline)
-                                .foregroundColor(Color(.secondaryLabel))
-                                
+                            Spacer()
                         }
-             
-                        Spacer()
-                    }
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear
-                                .onChange(of: geo.frame(in: .global).minY) { _, newY in
-                                    
-                                    if newY < 0 && !headerHidden {
-                                        headerHidden = true
-                                    }
-                                    if newY >= 0 && headerHidden {
-                                        headerHidden = false
-                                    }
-                                }
-                        }
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
+                        .headerVisibility(hidden: $headerHidden, threshold: 0)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
 
-                    Divider()
-                        .padding(.leading, 16)
-                    
-                    LazyVStack(spacing: 0) {
-                        ForEach(messages) { msg in
-                            Button {
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            } label: {
-                                MessageRow(message: msg)
+                        Divider()
+                            .padding(.leading, 16)
+
+                        LazyVStack(spacing: 0) {
+                            ForEach(messages) { msg in
+                                NavigationLink(destination: MessageModal(message: msg)) {
+                                    MessageRow(message: msg)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
-                        
                     }
-                    
                 }
-                
-            }
-          
-            .padding(.bottom, 22)
-            
-            BottomView()
+                .padding(.bottom, 22)
 
-            StikyHeadView(headerHidden: headerHidden, Title: filters[selectedFilter])
+                Rectangle()
+                       .fill(.clear)
+                       .frame(height: 90)
+                       .contentShape(Rectangle())
+                       .allowsHitTesting(true)
+                       .zIndex(1)
+
+                BottomView(modal:$modal)
+                       .zIndex(2)
+
+                StikyHeadView(headerHidden: headerHidden, Title: filters[selectedFilter])
+            }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .sheet(isPresented: $modal) {
+                SendMessage()
+            }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
-// MARK: - Row
+// MARK: - Message Row
 struct MessageRow: View {
-
     let message: Message
     @Environment(\.colorScheme) private var colorScheme
 
@@ -198,19 +172,15 @@ struct MessageRow: View {
             .padding(.top, 22)
 
             VStack(alignment: .leading, spacing: 4) {
-
                 HStack(spacing: 6) {
                     Text(message.sender)
                         .font(.system(size: 16, weight: .bold))
                         .lineLimit(1)
-
                     Spacer()
-
                     HStack(spacing: 2) {
                         Text(message.date)
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
-
                         Image(systemName: "chevron.forward")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(colorScheme == .dark
@@ -220,11 +190,9 @@ struct MessageRow: View {
                 }
                 Text(message.topic)
                     .font(.system(size: 14, weight: .semibold))
-
                 Text(message.pred)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(Color(.secondaryLabel))
-                
             }
             .padding(.top, 16)
             .padding(.bottom, 16)

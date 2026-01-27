@@ -108,24 +108,11 @@ struct HomeView: View {
                     VStack {
                         VStack(spacing: 12) {
                             HeaderView(widgets: $widgets)
-                                .background(
-                                    GeometryReader { geo in
-                                        Color.clear
-                                            .onChange(of: geo.frame(in: .global).minY) { _, newY in
-                                                
-                                                if newY < 0 && !headerHidden {
-                                                    headerHidden = true
-                                                }
-                                                if newY >= 0 && headerHidden {
-                                                    headerHidden = false
-                                                }
-                                            }
-                                    }
-                                )
+                                .headerVisibility(hidden: $headerHidden, threshold: 0)
                             
                             LazyVStack(spacing: 12) {
-                                ForEach(widgets) { item in
-                                    WidgetView(item: item)
+                                ForEach(Array(widgets.enumerated()), id: \.1.id) { index, item in
+                                    WidgetView(item: item, index: index)
                                 }
                             }
                             .padding(.horizontal)

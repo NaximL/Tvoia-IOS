@@ -14,6 +14,7 @@ extension Color {
         self.init(red: r, green: g, blue: b)
     }
 }
+
 struct GradientView: View {
     let width: CGFloat = 400
     let height: CGFloat = 300
