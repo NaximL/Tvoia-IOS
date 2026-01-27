@@ -233,8 +233,9 @@ struct SendMessage: View {
                             .frame(width: 23,height: 23)
                             .symbolEffect(.bounce, value: UUID())
                             .padding()
-                            .glassEffect(.regular.interactive())
+                            
                     }
+                    .glassEffect(.regular.interactive())
                     .foregroundStyle(.primary)
 
                 }

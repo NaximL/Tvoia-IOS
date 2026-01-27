@@ -81,6 +81,42 @@ struct MessagesScreen: View {
                     .padding()
                 }
             }
+            else if #available(iOS 15.0, *) {
+                // iOS 15–25 fallback: Material
+                HStack(spacing: 10) {
+                    Menu {
+                        Button { } label: { Label("Add to Favorites", systemImage: "heart") }
+                        Button { } label: { Label("Show in Maps", systemImage: "mappin") }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                            .font(.system(size: 25, weight: .semibold))
+                            .frame(width: 57, height: 57)
+                            
+                            .foregroundColor(.primary)
+                            .background(Color(hex: "#1c1c1e"), in: RoundedRectangle(cornerRadius: 36, style: .continuous))
+                    }
+
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 20, weight: .medium))
+                        TextField("Пошук", text: $text)
+                            .font(.title3.bold())
+                            .frame(height: 44)
+                    }
+                    .padding(.horizontal, 12)
+                    .frame(height: 57)
+                    .background(Color(hex: "#1c1c1e"), in: RoundedRectangle(cornerRadius: 36, style: .continuous))
+
+                    Button(action: { modal = true }) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 25, weight: .semibold))
+                            .frame(width: 57, height: 57)
+                    }
+                    .foregroundColor(.primary)
+                    .background(Color(hex: "#1c1c1e"), in: RoundedRectangle(cornerRadius: 36, style: .continuous))
+                }
+                .padding()
+            }
         }
     }
 

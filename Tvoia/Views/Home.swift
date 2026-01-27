@@ -10,9 +10,17 @@ struct Widgetd: Identifiable {
     let id = UUID()
     let icon: String
     let title: String
-    let time: String
+    let time: String?
     let color: Color
     let content: AnyView
+    
+    init(icon: String, title: String, time: String? = nil, color: Color, content: AnyView) {
+        self.icon = icon
+        self.title = title
+        self.time = time
+        self.color = color
+        self.content = content
+    }
 }
 
 struct HeaderFrameKey: PreferenceKey {
@@ -83,7 +91,6 @@ struct HomeView: View {
         Widgetd(
             icon: "clock.fill",
             title: "Урок зараз",
-            time: "18:45",
             color: Color(hex: "#5E5CE6"),
             content: AnyView(
                 HStack() {

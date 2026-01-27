@@ -14,7 +14,6 @@ struct WidgetView: View {
     @Environment(\.colorScheme) var scheme
 
         
-
     var body: some View {
         Group {
             if #available(iOS 26, *) {
@@ -25,7 +24,35 @@ struct WidgetView: View {
                     )
             } else {
                 Header
-                    .background(.ultraThinMaterial)
+                    .background(
+                                            ZStack {
+                                                // Основной фон
+                                                RoundedRectangle(cornerRadius: 36)
+                                                    .fill(Color(hex: "#1c1c1e"))
+                                                
+                                                // Верхний блик
+                                                RoundedRectangle(cornerRadius: 36)
+                                                    .stroke(
+                                                        LinearGradient(
+                                                            colors: [
+                                                                Color.white.opacity(0.2),
+                                                                Color.white.opacity(0.1),
+                                                                Color.clear,
+                                                                Color.white.opacity(0.2),
+                                                                Color.white.opacity(0.4)
+                                                            ],
+                                                            startPoint: .top,
+                                                            endPoint: .bottomTrailing
+                                                        ),
+                                                        lineWidth: 1
+                                                    )
+                                                    .blur(radius: 1.5)
+                                                    .blendMode(.overlay)
+                                                
+                                                
+                                            }
+                                        )
+                                        .shadow(color: Color.black.opacity(0.25), radius: 10, x: 0, y: 5)
             }
         }
         
@@ -48,8 +75,9 @@ struct WidgetView: View {
                 
                 Spacer()
                 
+                if let time = item.time {
                 HStack(spacing: 3,) {
-                    Text(item.time)
+                    Text(time)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(scheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
 
@@ -58,6 +86,8 @@ struct WidgetView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(scheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
                 }
+                }
+                
             }
             .padding(3)
             

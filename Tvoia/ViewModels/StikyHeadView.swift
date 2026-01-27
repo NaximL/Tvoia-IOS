@@ -40,7 +40,9 @@ struct StikyHeadView: View {
                         .foregroundStyle(.primary)
                         .padding()
                         .opacity(headerHidden ? 1 : 0)
-                        .offset(y: headerHidden ? 10 : 0)
+                        .offset(y: headerHidden ? -10 : -15)
+                        
+
                 }
             }
             .ignoresSafeArea(edges: .top)

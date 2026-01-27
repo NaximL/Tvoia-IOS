@@ -17,8 +17,8 @@ struct HeaderView: View {
         
         VStack(spacing: 40) {
             
-            if #available(iOS 26.0, *) {
-                HStack(alignment: .center) {
+            
+            HStack(alignment:.center) {
                     Text("Статистика")
                         .font(.largeTitle)
                         .fontWeight(.bold)
@@ -32,7 +32,7 @@ struct HeaderView: View {
                         .frame(width: 50, height: 50)
                 }
                 .padding(.horizontal)
-            }
+            
             
             HStack(alignment: .center) {
                 Text("Закріплені")
@@ -62,13 +62,39 @@ struct HeaderView: View {
                     Button(action: {
                         showModalEdit=true
                     }){
-                        Text("Змінити").foregroundStyle(.white)
+                        Text("Змінити")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.all,11)
+                            .foregroundColor(.white)
                     }
                     .sheet(isPresented: $showModalEdit) {
                         EditWidgetsModal(isPresented: $showModalEdit, widgets: $widgets)
                     }
-                    .padding()
-                    .background(.ultraThinMaterial)
+                    .padding(3)
+                    
+                    
+                    
+                    .background(Color(hex: "#1c1c1e"))
+                    .cornerRadius(.infinity)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 36)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.8),
+                                        .white.opacity(0.15),
+                                        .clear,
+                                        .white.opacity(0.7),
+                                        .white.opacity(0.7)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                            .blur(radius: 0.6)
+                            .blendMode(.overlay)
+                    }
                 }
                 
             }.padding(.horizontal)
